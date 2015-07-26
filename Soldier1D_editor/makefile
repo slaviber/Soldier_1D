@@ -4,7 +4,7 @@ CXXINCS = -I"include/SDL2" -I"Platform" -I"Console"
 RM = rm -f
 
 all:
-	g++ main.cpp Map.cpp Platform/Graphics.cpp Console/InputLoop.cpp -o Soldier1D.exe $(LIBS) $(CXXINCS) -std=c++11 -m32
+	g++ main.cpp Map.cpp Platform/Graphics.cpp Console/InputLoop.cpp Items.cpp -o Soldier1D.exe $(LIBS) $(CXXINCS) -std=c++11 -m32
 clean:
 	RM *.exe
 
