@@ -123,7 +123,7 @@ void Game::loop(){
 						if (getBlockPos(0) >= map_min_block)mappos_x += 0.05*pow(2, zoom);
 						break;
 					case SDLK_UP:
-						zoom++;
+						if(zoom < 10)zoom++;
 						break;
 					case SDLK_DOWN:
 						if(zoom > 0)zoom--;
@@ -136,15 +136,11 @@ void Game::loop(){
 				}
 			}
 		}
-		//cout << display->getMouseX() << endl;
 		SDL_Delay(10);
 	}
 }
 
 void Game::parseInput(vector<string> input){
-	//for (int i = 0; i < input.size(); ++i){
-	//	cout << input[i] << endl;
-	//}
 	if (input[0] == "mapsize"){
 		unsigned int size = atoi(input[1].c_str());
 		if (size == 0)cout << "Warning! Size can't be zero!" << endl;
