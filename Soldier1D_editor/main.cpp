@@ -108,7 +108,7 @@ void Game::loop(){
 			
 			display->applyTexture(display->getTexture(texture), grid_x*0.1, grid_y*0.1, 0.1, 0.1);
 		}
-	
+		double mouse_center_x;
 		if (SDL_PollEvent(&event)){
 			switch (event.type){
 				case SDL_QUIT: 
@@ -129,7 +129,9 @@ void Game::loop(){
 						if(zoom > 0)zoom--;
 						break;
 					case SDLK_RCTRL:
-						mappos_x -= (display->getMouseX() - 0.5)*pow(2, zoom);
+						mouse_center_x = (display->getMouseX() - 0.5)*pow(2, zoom);
+						if (mappos_x - mouse_center_x > map_min_block/10.0 && mappos_x - mouse_center_x < map_max_block/10.0)
+							mappos_x -= mouse_center_x;
 						break;
 				}
 			}
