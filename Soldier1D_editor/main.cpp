@@ -66,14 +66,20 @@ void Game::loop(){
 		display->renderScene();
 		
 		
-		//display->applyTexture(display->getTexture(0), (0.5 - ((0.1 / pow(2, zoom))*map->getMapSize()) / 2.0) + mappos_x, 0.45, (0.1 / pow(2, zoom))*map->getMapSize(), 0.1);
+
 		display->applyTexture(display->getTexture(gray_bgr), 0, 0.2, 1, 0.1);
-		for (int i = 0; i < map->getMapSize(); ++i){
+		int map_min_block = -(map->getMapSize() / 2);
+		int map_max_block = +(map->getMapSize() / 2);
+		int draw_begin = getBlockPos(0) < map_min_block ? 0 : getBlockPos(0) - map_min_block - 1;
+		draw_begin = draw_begin < 0 ? 0 : draw_begin;
+		int draw_end = getBlockPos(1) > map_max_block ? map->getMapSize() : getBlockPos(1) + map_max_block + 1;
+		draw_end = draw_end > map->getMapSize() ? map->getMapSize() : draw_end;
+		for (int i = draw_begin; i < draw_end; ++i){
 			double blocksize = (0.1 / pow(2, zoom));
 			double blockpos = (0.5 - ((0.1 / pow(2, zoom))*map->getMapSize()) / 2.0) + mappos_x / pow(2, zoom) + blocksize*i;
 			display->applyTexture(display->getTexture(map_bgr), blockpos, 0.2, blocksize, 0.1);
 		}
-		//display->applyTexture(display->getTexture(0), (0.5 - ((0.1 / pow(2, zoom))*map->getMapSize()) / 2.0) + mappos_x, 0.45, (0.1 / pow(2, zoom))*map->getMapSize(), 0.1);
+
 		string pos = "X=" + to_string(getBlockPos(display->getMouseX()));
 
 		display->getTextWH(main_font, pos.c_str(), main_w, main_h);
