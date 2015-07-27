@@ -117,10 +117,10 @@ void Game::loop(){
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym){
 					case SDLK_LEFT:
-						mappos_x -= 0.05*pow(2, zoom);
+						if (getBlockPos(1) <= map_max_block)mappos_x -= 0.05*pow(2, zoom);
 						break;
 					case SDLK_RIGHT:
-						mappos_x += 0.05*pow(2, zoom);
+						if (getBlockPos(0) >= map_min_block)mappos_x += 0.05*pow(2, zoom);
 						break;
 					case SDLK_UP:
 						zoom++;
