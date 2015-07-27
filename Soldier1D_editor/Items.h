@@ -25,6 +25,7 @@ public:
 	int getItemX();
 	void setItemX(int x);
 	virtual map<string,int> getStats() = 0;
+	virtual string getName() = 0;
 };
 
 class SpawnPoint: public Item{
@@ -32,6 +33,7 @@ class SpawnPoint: public Item{
 public:
 	SpawnPoint(int x);
 	map<string,int> getStats();
+	string getName();
 };
 
 enum ITEMS {SPAWN_POINT=0, LAST_ITEM};

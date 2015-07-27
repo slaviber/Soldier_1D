@@ -36,3 +36,7 @@ SpawnPoint::SpawnPoint(int x):Item(x){
 map<string,int> SpawnPoint::getStats(){
 	return stats;
 }
+
+string SpawnPoint::getName(){
+	return "Spawn Point";
+}
