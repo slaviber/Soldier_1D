@@ -111,10 +111,10 @@ void Game::loop(){
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym){
 					case SDLK_LEFT:
-						mappos_x -= 0.1*pow(2, zoom);
+						mappos_x -= 0.05*pow(2, zoom);
 						break;
 					case SDLK_RIGHT:
-						mappos_x += 0.1*pow(2, zoom);
+						mappos_x += 0.05*pow(2, zoom);
 						break;
 					case SDLK_UP:
 						zoom++;
