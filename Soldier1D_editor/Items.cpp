@@ -12,8 +12,8 @@ int ItemResources::getTextureIDByEnum(int e_num){
 	return e_nums[e_num];
 }
 
-Item::Item(int x):x(x){
-	uid++;
+Item::Item(int x):x(x),id(uid++){
+	
 }
 
 int Item::getItemX(){
@@ -25,6 +25,10 @@ void Item::setItemX(int x){
 }
 
 unsigned int Item::uid=0;
+
+unsigned int Item::getUID(){
+	return this->id;
+}
 
 SpawnPoint::SpawnPoint(int x):Item(x){
 	stats.insert(pair<string,int>("Team",0));

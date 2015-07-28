@@ -16,6 +16,7 @@ class Game : public Console{
 	SDL_Event event;
 	SDL_Thread *thread_g;
 	int main_font;
+	int head_font;
 	float mappos_x = 0;
 	int zoom = 0;
 	int curr_selection = 0;
@@ -58,6 +59,7 @@ int Game::getBlockPos(double x){
 void Game::loop(){
 	if ((thread_g = SDL_CreateThread(Console::inputLoop, "commands", (void *)this)) == NULL) throw Error(SDL_GetError());
 	main_font = display->loadFont("Fonts/ARIALUNI.ttf", 12);
+	head_font = display->loadFont("Fonts/ARIALUNI.ttf", 16);
 	int map_bgr = display->loadTexture("Textures/bgr.png");
 	int gray_bgr = display->loadTexture("Textures/gray_bgr.png");
 	int orange = display->loadTexture("Textures/orange.png");
@@ -95,6 +97,32 @@ void Game::loop(){
 				if (curr_selection < LAST_ITEM)display->applyTexture(display->getTexture(ItemResources::getTextureIDByEnum(curr_selection)), blockpos, 0.2, blocksize, 0.1);
 				else display->applyTexture(display->getTexture(selected_white), blockpos, 0.2, blocksize, 0.1);
 			}
+		}
+		
+		double stat_text_pos = 0.41;
+		
+		for(int i=0; i<map_items.size(); i++){
+			int x = map_items.at(i)->getItemX();
+			if(x>=draw_begin-map_max_block && x<=draw_end-map_max_block){
+				display->applyTexture(display->getTexture(ItemResources::getTextureID(&typeid(*map_items.at(i)))), block_part + blocksize*(x+map_max_block), 0.2, blocksize, 0.1);
+			}
+			if(getBlockPos(display->getMouseX())==x && selection_y==2){
+				string item_name = map_items.at(i)->getName();
+				double text_w, text_h;
+				display->getTextWH(head_font, item_name.c_str(), text_w, text_h);
+				display->displayText(head_font, item_name.c_str(), RGBA(0, 255, 0, 0), 0.01, stat_text_pos, text_w, text_h);
+				
+				double temp_h = text_h;
+				double temp_w = text_w;
+				
+				string uid_string = " UID: " + to_string(map_items.at(i)->getUID());
+				
+				display->getTextWH(main_font, uid_string.c_str(), text_w, text_h);
+				display->displayText(main_font, uid_string.c_str(), RGBA(0, 255, 0, 0), 0.01+temp_w, stat_text_pos+(temp_h-text_h)/2.0, text_w, text_h);
+				
+				stat_text_pos+=text_h;
+			}
+	
 		}
 
 		//double curr_block = (display->getMouseX() -0.5)* 10;
@@ -147,7 +175,9 @@ void Game::loop(){
 			}
 
 			if (selection_y == 2){
-				cout << "block_added" << endl;
+				if(getBlockPos(display->getMouseX())>=map_min_block && getBlockPos(display->getMouseX())<=map_max_block)
+					if(curr_selection<LAST_ITEM) //map_items.push_back(new unique_ptr<Item*>(ItemResources::item_types[curr_selection](display->getMouseX())));
+							map_items.push_back(unique_ptr<Item>(ItemResources::item_types[curr_selection](getBlockPos(display->getMouseX()))));
 			}
 		}
 

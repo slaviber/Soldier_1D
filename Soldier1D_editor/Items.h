@@ -26,10 +26,12 @@ public:
 class Item{
 	int x=0;
 	static unsigned int uid;
+	const unsigned int id;
 public:
 	Item(int x);
 	int getItemX();
 	void setItemX(int x);
+	unsigned int getUID();
 	virtual map<string,int> getStats() = 0;
 	virtual string getName() = 0;
 };
