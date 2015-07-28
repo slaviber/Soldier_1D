@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "Items.h"
 #include <complex>
+#include <memory>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ class Game : public Console{
 	int zoom = 0;
 	int curr_selection = 0;
 	bool left_clicked = false;
+	vector<unique_ptr<Item>> map_items;
 public:
 	Game();
 	void loop();
@@ -80,11 +82,26 @@ void Game::loop(){
 		draw_begin = draw_begin < 0 ? 0 : draw_begin;
 		int draw_end = getBlockPos(1) > map_max_block ? map->getMapSize() : getBlockPos(1) + map_max_block + 1;
 		draw_end = draw_end > map->getMapSize() ? map->getMapSize() : draw_end;
+
+		int selection_x = display->getMouseX() * 10;
+		int selection_y = display->getMouseY() * 10;
+
+		double blocksize = (0.1 / pow(2, zoom));
+		double block_part = (0.5 - ((0.1 / pow(2, zoom))*map->getMapSize()) / 2.0) + mappos_x / pow(2, zoom);
 		for (int i = draw_begin; i < draw_end; ++i){
-			double blocksize = (0.1 / pow(2, zoom));
-			double blockpos = (0.5 - ((0.1 / pow(2, zoom))*map->getMapSize()) / 2.0) + mappos_x / pow(2, zoom) + blocksize*i;
+			double blockpos = block_part + blocksize*i;
 			display->applyTexture(display->getTexture(map_bgr), blockpos, 0.2, blocksize, 0.1);
+			if (i == getBlockPos(display->getMouseX()) + (map->getMapSize() / 2) && selection_y == 2){
+				if (curr_selection < LAST_ITEM)display->applyTexture(display->getTexture(ItemResources::getTextureIDByEnum(curr_selection)), blockpos, 0.2, blocksize, 0.1);
+				else display->applyTexture(display->getTexture(selected_white), blockpos, 0.2, blocksize, 0.1);
+			}
 		}
+
+		//double curr_block = (display->getMouseX() -0.5)* 10;
+		//curr_block *= pow(2, zoom);
+		//curr_block += (map->getMapSize() / 2);
+
+		//display->applyTexture(display->getTexture(selected_white), block_part + blocksize*(int)curr_block, 0.2, blocksize, 0.1);
 
 		string pos = "X=" + to_string(getBlockPos(display->getMouseX()));
 
@@ -117,10 +134,8 @@ void Game::loop(){
 
 		display->applyTexture(display->getTexture(selected), (curr_selection%10)*0.1, (curr_selection/10)*0.1, 0.1, 0.1);
 
-		int selection_x = display->getMouseX() * 10;
-		int selection_y = display->getMouseY() * 10;
-
 		if(selection_y < 2)display->applyTexture(display->getTexture(selected_white), selection_x*0.1, selection_y*0.1 , 0.1, 0.1);
+
 
 		int hovered_item = selection_y * 10 + selection_x;
 		//cout << display->getLeftClick() << endl;
@@ -129,6 +144,10 @@ void Game::loop(){
 			left_clicked = false;
 			if (hovered_item < 20){
 				curr_selection = hovered_item;
+			}
+
+			if (selection_y == 2){
+				cout << "block_added" << endl;
 			}
 		}
 
