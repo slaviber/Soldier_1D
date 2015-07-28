@@ -146,6 +146,7 @@ void Game::parseInput(vector<string> input){
 		if (size == 0)cout << "Warning! Size can't be zero!" << endl;
 		else{
 			map->changeMapSize(size);
+			mappos_x = 0;
 		}
 	}
 }
