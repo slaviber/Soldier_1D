@@ -66,6 +66,7 @@ void Game::loop(){
 	int tiles = display->loadTexture("Textures/tiles.png");
 	int selected = display->loadTexture("Textures/selected.png");
 	int selected_white = display->loadTexture("Textures/selected_white.png");
+	int not_so_black = display->loadTexture("Textures/not_so_black.png");
 	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"), SPAWN_POINT);
 	
 	//Item* spawn = ItemResources::item_types[SPAWN_POINT](10);
@@ -99,7 +100,8 @@ void Game::loop(){
 			}
 		}
 		
-		double stat_text_pos = 0.41;
+		double stat_text_pos = 0.405;
+		int text_counter = 0;
 		
 		for(int i=0; i<map_items.size(); i++){
 			int x = map_items.at(i)->getItemX();
@@ -107,10 +109,15 @@ void Game::loop(){
 				display->applyTexture(display->getTexture(ItemResources::getTextureID(&typeid(*map_items.at(i)))), block_part + blocksize*(x+map_max_block), 0.2, blocksize, 0.1);
 			}
 			if(getBlockPos(display->getMouseX())==x && selection_y==2){
+				++text_counter;
+				RGBA c1 = *new RGBA(0, 255, 0, 0);
+				RGBA c2 = *new RGBA(255, 255, 0, 0);
+
+				RGBA text_color = text_counter % 2 ? c1 : c2;
 				string item_name = map_items.at(i)->getName();
 				double text_w, text_h;
 				display->getTextWH(head_font, item_name.c_str(), text_w, text_h);
-				display->displayText(head_font, item_name.c_str(), RGBA(0, 255, 0, 0), 0.01, stat_text_pos, text_w, text_h);
+				display->displayText(head_font, item_name.c_str(), text_color, 0.01, stat_text_pos, text_w, text_h);
 				
 				double temp_h = text_h;
 				double temp_w = text_w;
@@ -118,18 +125,32 @@ void Game::loop(){
 				string uid_string = " UID: " + to_string(map_items.at(i)->getUID());
 				
 				display->getTextWH(main_font, uid_string.c_str(), text_w, text_h);
-				display->displayText(main_font, uid_string.c_str(), RGBA(0, 255, 0, 0), 0.01+temp_w, stat_text_pos+(temp_h-text_h)/2.0, text_w, text_h);
+				display->displayText(main_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos + (temp_h - text_h), text_w, text_h);
+
+				temp_w += text_w;
+
+				uid_string = " / ";
+
+				display->getTextWH(head_font, uid_string.c_str(), text_w, text_h);
+				display->displayText(head_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos, text_w, text_h);
+
+				std::map<string, int> stats = map_items.at(i)->getStats();
+
+				for (std::map<string, int>::iterator it = stats.begin(); it != stats.end(); ++it){
+					uid_string = it->first + ": " + to_string(it->second);
+
+					temp_w += text_w;
+
+					display->getTextWH(main_font, uid_string.c_str(), text_w, text_h);
+					display->displayText(main_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos + (temp_h - text_h), text_w, text_h);
+				}
 				
-				stat_text_pos+=text_h;
+				stat_text_pos+=text_h*0.8;
+
+				display->applyTexture(display->getTexture(not_so_black), 0, stat_text_pos+0.01, 1, 0.002);
 			}
 	
 		}
-
-		//double curr_block = (display->getMouseX() -0.5)* 10;
-		//curr_block *= pow(2, zoom);
-		//curr_block += (map->getMapSize() / 2);
-
-		//display->applyTexture(display->getTexture(selected_white), block_part + blocksize*(int)curr_block, 0.2, blocksize, 0.1);
 
 		string pos = "X=" + to_string(getBlockPos(display->getMouseX()));
 

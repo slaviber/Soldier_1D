@@ -34,6 +34,7 @@ public:
 	unsigned int getUID();
 	virtual map<string,int> getStats() = 0;
 	virtual string getName() = 0;
+	virtual bool updateStat(string, int) = 0;
 };
 
 class SpawnPoint: public Item{
@@ -42,6 +43,7 @@ public:
 	SpawnPoint(int x);
 	map<string,int> getStats();
 	string getName();
+	bool updateStat(string, int);
 };
 
 template<typename T> Item * createInstance(int x) { return new T(x); }

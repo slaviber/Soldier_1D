@@ -41,3 +41,11 @@ map<string,int> SpawnPoint::getStats(){
 string SpawnPoint::getName(){
 	return "Spawn Point";
 }
+
+bool SpawnPoint::updateStat(string stat, int value){
+	map<string, int>::iterator it;
+	it = stats.find(stat);
+	if (it == stats.end())return false;
+	stats[stat] = value;
+	return true;
+}
