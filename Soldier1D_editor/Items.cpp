@@ -2,13 +2,10 @@
 
 map<const type_info*, int> ItemResources::textures;
 map<int, int> ItemResources::e_nums;
+array<Item*(*)(int), LAST_ITEM> ItemResources::item_types;
 
 const int ItemResources::getTextureID(const type_info* ti) {
 	return textures.at(ti);
-}
-
-void ItemResources::addTextureID(int newID, const type_info* ti, int e_num) {
-	textures[ti] = e_nums[e_num] = newID;
 }
 
 int ItemResources::getTextureIDByEnum(int e_num){

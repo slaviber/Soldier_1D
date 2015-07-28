@@ -62,8 +62,10 @@ void Game::loop(){
 	int tiles = display->loadTexture("Textures/tiles.png");
 	int selected = display->loadTexture("Textures/selected.png");
 	int selected_white = display->loadTexture("Textures/selected_white.png");
-	ItemResources::addTextureID(display->loadTexture("Textures/spawn.png"), &typeid(SpawnPoint), SPAWN_POINT);
+	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"), SPAWN_POINT);
 	
+	//Item* spawn = ItemResources::item_types[SPAWN_POINT](10);
+	//cout << spawn->getName() << endl;
 	
 	while (!quit) {
 		double main_w, main_h;
