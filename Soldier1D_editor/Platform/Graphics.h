@@ -52,6 +52,7 @@ public:
 	void getTextWH(int font, const char* text, double& w, double& h);
 	double getMouseX();
 	double getMouseY();
+	bool getLeftClick();
 	//double getMouseY();
 	SDL_Texture* getTexture(unsigned int id);
 	~Graphics();

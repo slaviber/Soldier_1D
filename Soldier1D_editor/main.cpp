@@ -17,6 +17,8 @@ class Game : public Console{
 	int main_font;
 	float mappos_x = 0;
 	int zoom = 0;
+	int curr_selection = 0;
+	bool left_clicked = false;
 public:
 	Game();
 	void loop();
@@ -58,6 +60,8 @@ void Game::loop(){
 	int gray_bgr = display->loadTexture("Textures/gray_bgr.png");
 	int orange = display->loadTexture("Textures/orange.png");
 	int tiles = display->loadTexture("Textures/tiles.png");
+	int selected = display->loadTexture("Textures/selected.png");
+	int selected_white = display->loadTexture("Textures/selected_white.png");
 	ItemResources::addTextureID(display->loadTexture("Textures/spawn.png"), &typeid(SpawnPoint), SPAWN_POINT);
 	
 	
@@ -108,6 +112,24 @@ void Game::loop(){
 			
 			display->applyTexture(display->getTexture(texture), grid_x*0.1, grid_y*0.1, 0.1, 0.1);
 		}
+
+		display->applyTexture(display->getTexture(selected), (curr_selection%10)*0.1, (curr_selection/10)*0.1, 0.1, 0.1);
+
+		int selection_x = display->getMouseX() * 10;
+		int selection_y = display->getMouseY() * 10;
+
+		if(selection_y < 2)display->applyTexture(display->getTexture(selected_white), selection_x*0.1, selection_y*0.1 , 0.1, 0.1);
+
+		int hovered_item = selection_y * 10 + selection_x;
+		//cout << display->getLeftClick() << endl;
+		if (display->getLeftClick())left_clicked = true;
+		if (!display->getLeftClick() && left_clicked){
+			left_clicked = false;
+			if (hovered_item < 20){
+				curr_selection = hovered_item;
+			}
+		}
+
 		double mouse_center_x;
 		if (SDL_PollEvent(&event)){
 			switch (event.type){

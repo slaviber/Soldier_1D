@@ -87,3 +87,7 @@ double Graphics::getMouseY(){
 	SDL_GetMouseState(NULL, &y);
 	return (double)y / (double)W;
 }
+
+bool Graphics::getLeftClick(){
+	return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(1);
+}
