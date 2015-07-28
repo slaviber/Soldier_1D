@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <memory>
+#include "Items.h"
 using namespace std;
 
 #ifndef _GLIBCXX_Map_H
@@ -9,5 +11,6 @@ class Map{
 public:
 	void changeMapSize(unsigned int);
 	unsigned int getMapSize();
+	vector<unique_ptr<Item>> items;
 };
 #endif

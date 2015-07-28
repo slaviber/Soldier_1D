@@ -5,7 +5,6 @@
 #include "Map.h"
 #include "Items.h"
 #include <complex>
-#include <memory>
 
 using namespace std;
 
@@ -21,7 +20,6 @@ class Game : public Console{
 	int zoom = 0;
 	int curr_selection = 0;
 	bool left_clicked = false;
-	vector<unique_ptr<Item>> map_items;
 public:
 	Game();
 	void loop();
@@ -103,10 +101,11 @@ void Game::loop(){
 		double stat_text_pos = 0.405;
 		int text_counter = 0;
 		
-		for(int i=0; i<map_items.size(); i++){
-			int x = map_items.at(i)->getItemX();
+		for (int i = 0; i<map->items.size(); i++){
+			Item& curr_item = *map->items.at(i);
+			int x = curr_item.getItemX();
 			if(x>=draw_begin-map_max_block && x<=draw_end-map_max_block){
-				display->applyTexture(display->getTexture(ItemResources::getTextureID(&typeid(*map_items.at(i)))), block_part + blocksize*(x+map_max_block), 0.2, blocksize, 0.1);
+				display->applyTexture(display->getTexture(ItemResources::getTextureID(&typeid(curr_item))), block_part + blocksize*(x+map_max_block), 0.2, blocksize, 0.1);
 			}
 			if(getBlockPos(display->getMouseX())==x && selection_y==2){
 				++text_counter;
@@ -114,7 +113,7 @@ void Game::loop(){
 				RGBA c2 = *new RGBA(255, 255, 0, 0);
 
 				RGBA text_color = text_counter % 2 ? c1 : c2;
-				string item_name = map_items.at(i)->getName();
+				string item_name = curr_item.getName();
 				double text_w, text_h;
 				display->getTextWH(head_font, item_name.c_str(), text_w, text_h);
 				display->displayText(head_font, item_name.c_str(), text_color, 0.01, stat_text_pos, text_w, text_h);
@@ -122,7 +121,7 @@ void Game::loop(){
 				double temp_h = text_h;
 				double temp_w = text_w;
 				
-				string uid_string = " UID: " + to_string(map_items.at(i)->getUID());
+				string uid_string = " UID: " + to_string(curr_item.getUID());
 				
 				display->getTextWH(main_font, uid_string.c_str(), text_w, text_h);
 				display->displayText(main_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos + (temp_h - text_h), text_w, text_h);
@@ -134,7 +133,7 @@ void Game::loop(){
 				display->getTextWH(head_font, uid_string.c_str(), text_w, text_h);
 				display->displayText(head_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos, text_w, text_h);
 
-				std::map<string, int> stats = map_items.at(i)->getStats();
+				std::map<string, int> stats = curr_item.getStats();
 
 				for (std::map<string, int>::iterator it = stats.begin(); it != stats.end(); ++it){
 					uid_string = it->first + ": " + to_string(it->second);
@@ -198,7 +197,7 @@ void Game::loop(){
 			if (selection_y == 2){
 				if(getBlockPos(display->getMouseX())>=map_min_block && getBlockPos(display->getMouseX())<=map_max_block)
 					if(curr_selection<LAST_ITEM) //map_items.push_back(new unique_ptr<Item*>(ItemResources::item_types[curr_selection](display->getMouseX())));
-							map_items.push_back(unique_ptr<Item>(ItemResources::item_types[curr_selection](getBlockPos(display->getMouseX()))));
+							map->items.push_back(unique_ptr<Item>(ItemResources::item_types[curr_selection](getBlockPos(display->getMouseX()))));
 			}
 		}
 
