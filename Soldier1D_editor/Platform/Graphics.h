@@ -51,6 +51,7 @@ public:
 	void displayText(int font, const char* text, RGBA color, double x, double y, double w, double h);
 	void getTextWH(int font, const char* text, double& w, double& h);
 	double getMouseX();
+	double getMouseY();
 	//double getMouseY();
 	SDL_Texture* getTexture(unsigned int id);
 	~Graphics();

@@ -81,3 +81,9 @@ double Graphics::getMouseX(){
 	SDL_GetMouseState(&x, NULL);
 	return (double)x/(double)H;
 }
+
+double Graphics::getMouseY(){
+	int y;
+	SDL_GetMouseState(NULL, &y);
+	return (double)y / (double)W;
+}
