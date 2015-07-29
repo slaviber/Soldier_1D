@@ -231,7 +231,7 @@ void Game::loop(){
 }
 
 void Game::parseInput(vector<string> input){
-	if (input[0] == "mapsize"){
+	if (input[0] == "mapsize" && input.size() == 2){
 		unsigned int size = atoi(input[1].c_str());
 		if (size == 0)cout << "Warning! Size can't be zero!" << endl;
 		else{
