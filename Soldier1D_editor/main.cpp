@@ -138,7 +138,7 @@ void Game::loop(){
 					temp_w += text_w;
 
 					display->getTextWH(main_font, uid_string.c_str(), text_w, text_h);
-					display->displayText(main_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos + (temp_h - text_h), text_w, text_h);
+					display->displayText(main_font, uid_string.c_str(), text_color, 0.01 + temp_w, stat_text_pos + text_h/2.0 -(temp_h-text_h)/2.0, text_w, text_h);
 				}
 
 				stat_text_pos += text_h*0.8;
