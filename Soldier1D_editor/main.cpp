@@ -66,6 +66,10 @@ void Game::loop(){
 	int selected_white = display->loadTexture("Textures/selected_white.png");
 	int not_so_black = display->loadTexture("Textures/not_so_black.png");
 	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"), SPAWN_POINT);
+	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase.png"), BASE);
+	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/TeamFlag.png"), FLAG);
+	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"), AMMO);
+	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"), WEAPON);
 
 	while (!quit) {
 		double main_w, main_h;

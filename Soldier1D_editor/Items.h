@@ -9,7 +9,7 @@ using namespace std;
 #ifndef _GLIBCXX_ITEMS_H
 #define _GLIBCXX_ITEMS_H
 
-enum ITEMS { SPAWN_POINT = 0, LAST_ITEM };
+enum ITEMS { SPAWN_POINT = 0, BASE, FLAG, AMMO, WEAPON, LAST_ITEM };
 
 class Item;
 
@@ -27,23 +27,46 @@ class Item{
 	int x=0;
 	static unsigned int uid;
 	const unsigned int id;
+protected:
+	map<string,int> stats;
 public:
 	Item(int x);
 	int getItemX();
 	void setItemX(int x);
 	unsigned int getUID();
-	virtual map<string,int> getStats() = 0;
+	map<string,int> getStats();
 	virtual string getName() = 0;
-	virtual bool updateStat(string, int) = 0;
+	bool updateStat(string, int);
 };
 
 class SpawnPoint: public Item{
-	map<string,int> stats;
 public:
 	SpawnPoint(int x);
-	map<string,int> getStats();
 	string getName();
-	bool updateStat(string, int);
+};
+
+class Base: public Item{
+public:
+	Base(int x);
+	string getName();
+};
+
+class Flag: public Item{
+public:
+	Flag(int x);
+	string getName();
+};
+
+class Ammo: public Item{
+public:
+	Ammo(int x);
+	string getName();
+};
+
+class Weapon: public Item{
+public:
+	Weapon(int x);
+	string getName();
 };
 
 template<typename T> Item * createInstance(int x) { return new T(x); }
