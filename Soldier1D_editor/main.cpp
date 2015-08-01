@@ -155,7 +155,7 @@ void Game::loop(){
 		string pos = "X=" + to_string(getBlockPos(display->getMouseX()));
 
 		display->getTextWH(main_font, pos.c_str(), main_w, main_h);
-		display->displayText(main_font, pos.c_str(), RGBA(0, 255, 0, 0), 0.9, 0.9, main_w, main_h);
+		display->displayText(main_font, pos.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.9, main_w, main_h);
 
 		display->applyTexture(display->getTexture(gray_bgr), 0, 0.3, 1, 0.1);
 
@@ -187,6 +187,21 @@ void Game::loop(){
 
 
 		int hovered_item = selection_y * 10 + selection_x;
+
+		if (hovered_item < LAST_ITEM){
+			string item = ItemResources::item_types[hovered_item](0)->getName();
+			display->getTextWH(main_font, item.c_str(), main_w, main_h);
+			display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
+		}
+
+		if (selection_y == 2){
+			if (getBlockPos(display->getMouseX()) >= map_min_block && getBlockPos(display->getMouseX()) <= map_max_block)
+				if (curr_selection < LAST_ITEM){
+					string item = "Will place " + ItemResources::item_types[curr_selection](0)->getName();
+					display->getTextWH(main_font, item.c_str(), main_w, main_h);
+					display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
+				}
+		}
 
 		if (display->getLeftClick())left_clicked = true;
 		if (!display->getLeftClick() && left_clicked){
