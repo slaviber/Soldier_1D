@@ -4,6 +4,8 @@
 #include <typeinfo>
 #include <array>
 
+#include "Platform/Graphics.h" //mainly due to the need of Error()
+
 using namespace std;
 
 #ifndef _GLIBCXX_ITEMS_H
@@ -72,9 +74,11 @@ public:
 template<typename T> Item * createInstance(int x) { return new T(x); }
 
 template<class T> void ItemResources::addTextureID(int newID) {
+	map<const type_info*, int>::iterator it;
+	it = textures.find(&typeid(T));
+	if (it != textures.end())throw Error("class already registered!");
 
-	textures.insert(std::pair<const type_info*, int>(&typeid(T), newID));
-	e_nums[last_item] = newID;
+	textures[&typeid(T)] = e_nums[last_item] = newID;
 	item_types.push_back(&createInstance<T>);
 	last_item++;
 }
