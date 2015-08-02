@@ -20,6 +20,8 @@ class Game : public Console{
 	int zoom = 0;
 	int curr_selection = 0;
 	bool left_clicked = false;
+	vector<unique_ptr<Item>> items;
+	Item* reference_point[LAST_ITEM];
 public:
 	Game();
 	void loop();
@@ -70,6 +72,10 @@ void Game::loop(){
 	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/TeamFlag.png"), FLAG);
 	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"), AMMO);
 	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"), WEAPON);
+
+	for (int i = 0; i < LAST_ITEM; ++i){
+		reference_point[i] = ItemResources::item_types[i](0);
+	}
 
 	while (!quit) {
 		double main_w, main_h;
@@ -137,7 +143,7 @@ void Game::loop(){
 				std::map<string, int> stats = curr_item.getStats();
 
 				for (std::map<string, int>::iterator it = stats.begin(); it != stats.end(); ++it){
-					uid_string = it->first + ": " + to_string(it->second);
+					uid_string = it->first + ": " + to_string(it->second) + " ";
 
 					temp_w += text_w;
 
@@ -189,7 +195,7 @@ void Game::loop(){
 		int hovered_item = selection_y * 10 + selection_x;
 
 		if (hovered_item < LAST_ITEM){
-			string item = ItemResources::item_types[hovered_item](0)->getName();
+			string item = reference_point[hovered_item]->getName();
 			display->getTextWH(main_font, item.c_str(), main_w, main_h);
 			display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
 		}
@@ -197,7 +203,7 @@ void Game::loop(){
 		if (selection_y == 2){
 			if (getBlockPos(display->getMouseX()) >= map_min_block && getBlockPos(display->getMouseX()) <= map_max_block)
 				if (curr_selection < LAST_ITEM){
-					string item = "Will place " + ItemResources::item_types[curr_selection](0)->getName();
+					string item = "Will place " + reference_point[curr_selection]->getName();
 					display->getTextWH(main_font, item.c_str(), main_w, main_h);
 					display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
 				}
@@ -258,6 +264,37 @@ void Game::parseInput(vector<string> input){
 			mappos_x = 0;
 		}
 	}
+
+	else if (input[0] == "stat" && input.size() == 4){
+		unsigned int uid = stoul(input[1], nullptr, 0);
+		int value = stoi(input[3], nullptr, 0);
+
+		bool found = false;
+		for (int i = 0; i < map->items.size(); ++i){
+			if (map->items.at(i)->getUID() == uid){
+				found = true;
+				if (!map->items.at(i)->updateStat(input[2], value))cout << "wrong stat!" << endl;
+				break;
+			}
+		}
+		if (!found) cout << "invalid item uid!" << endl;
+	}
+
+	else if (input[0] == "delete" && input.size() == 2){
+		unsigned int uid = stoul(input[1], nullptr, 0);
+
+		bool found = false;
+		for (int i = 0; i < map->items.size(); ++i){
+			if (map->items.at(i)->getUID() == uid){
+				found = true;
+				map->items.erase(map->items.begin() + i);
+				break;
+			}
+		}
+		if (!found) cout << "invalid item uid!" << endl;
+	}
+
+	else cout << "wrong command" << endl;
 }
 
 int main(int argc, char** argv){
