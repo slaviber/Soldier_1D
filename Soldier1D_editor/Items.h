@@ -76,7 +76,10 @@ template<typename T> Item * createInstance(int x) { return new T(x); }
 template<class T> void ItemResources::addTextureID(int newID) {
 	map<const type_info*, int>::iterator it;
 	it = textures.find(&typeid(T));
-	if (it != textures.end())throw Error("class already registered!");
+	string error = "class ";
+	error += typeid(T).name();
+	error += " already registered!";
+	if (it != textures.end())throw Error(error.c_str());
 
 	textures[&typeid(T)] = e_nums[last_item] = newID;
 	item_types.push_back(&createInstance<T>);
