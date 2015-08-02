@@ -20,7 +20,6 @@ class Game : public Console{
 	int zoom = 0;
 	int curr_selection = 0;
 	bool left_clicked = false;
-	vector<unique_ptr<Item>> items;
 	Item* reference_point[LAST_ITEM];
 public:
 	Game();
