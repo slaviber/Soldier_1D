@@ -72,7 +72,9 @@ public:
 template<typename T> Item * createInstance(int x) { return new T(x); }
 
 template<class T> void ItemResources::addTextureID(int newID) {
-	textures[&typeid(T)] = e_nums[last_item] = newID;
+
+	textures.insert(std::pair<const type_info*, int>(&typeid(T), newID));
+	e_nums[last_item] = newID;
 	item_types.push_back(&createInstance<T>);
 	last_item++;
 }
