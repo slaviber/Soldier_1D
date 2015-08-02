@@ -2,7 +2,8 @@
 
 map<const type_info*, int> ItemResources::textures;
 map<int, int> ItemResources::e_nums;
-array<Item*(*)(int), LAST_ITEM> ItemResources::item_types;
+vector<Item*(*)(int)> ItemResources::item_types;
+unsigned int ItemResources::last_item = 0;
 
 const int ItemResources::getTextureID(const type_info* ti) {
 	return textures.at(ti);
@@ -10,6 +11,10 @@ const int ItemResources::getTextureID(const type_info* ti) {
 
 int ItemResources::getTextureIDByEnum(int e_num){
 	return e_nums[e_num];
+}
+
+unsigned int ItemResources::getLastItem(){
+	return last_item;
 }
 
 Item::Item(int x):x(x),id(uid++){

@@ -9,18 +9,18 @@ using namespace std;
 #ifndef _GLIBCXX_ITEMS_H
 #define _GLIBCXX_ITEMS_H
 
-enum ITEMS { SPAWN_POINT = 0, BASE, FLAG, AMMO, WEAPON, LAST_ITEM };
-
 class Item;
 
 class ItemResources {
 	static map<const type_info*, int> textures;
 	static map<int, int> e_nums;
+	static unsigned int last_item;
 public:
 	static const int getTextureID(const type_info* ti);
-	template<typename T> static void addTextureID(int newID, int e_num);
+	template<typename T> static void addTextureID(int newID);
 	static int getTextureIDByEnum(int e_num);
-	static array<Item*(*)(int), LAST_ITEM> item_types;
+	static vector<Item*(*)(int)> item_types;
+	static unsigned int getLastItem();
 };
 
 class Item{
@@ -71,9 +71,10 @@ public:
 
 template<typename T> Item * createInstance(int x) { return new T(x); }
 
-template<class T> void ItemResources::addTextureID(int newID, int e_num) {
-	textures[&typeid(T)] = e_nums[e_num] = newID;
-	item_types[e_num] = &createInstance<T>;
+template<class T> void ItemResources::addTextureID(int newID) {
+	textures[&typeid(T)] = e_nums[last_item] = newID;
+	item_types.push_back(&createInstance<T>);
+	last_item++;
 }
 
 

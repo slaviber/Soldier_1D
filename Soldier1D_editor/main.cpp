@@ -20,7 +20,7 @@ class Game : public Console{
 	int zoom = 0;
 	int curr_selection = 0;
 	bool left_clicked = false;
-	Item* reference_point[LAST_ITEM];
+	vector<Item*> reference_point;
 public:
 	Game();
 	void loop();
@@ -66,14 +66,14 @@ void Game::loop(){
 	int selected = display->loadTexture("Textures/selected.png");
 	int selected_white = display->loadTexture("Textures/selected_white.png");
 	int not_so_black = display->loadTexture("Textures/not_so_black.png");
-	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"), SPAWN_POINT);
-	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase.png"), BASE);
-	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/TeamFlag.png"), FLAG);
-	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"), AMMO);
-	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"), WEAPON);
+	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"));
+	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase.png"));
+	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/TeamFlag.png"));
+	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"));
+	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"));
 
-	for (int i = 0; i < LAST_ITEM; ++i){
-		reference_point[i] = ItemResources::item_types[i](0);
+	for (int i = 0; i < ItemResources::getLastItem(); ++i){
+		reference_point.push_back(ItemResources::item_types[i](0));
 	}
 
 	while (!quit) {
@@ -99,7 +99,7 @@ void Game::loop(){
 			double blockpos = block_part + blocksize*i;
 			display->applyTexture(display->getTexture(map_bgr), blockpos, 0.2, blocksize, 0.1);
 			if (i == getBlockPos(display->getMouseX()) + (map->getMapSize() / 2) && selection_y == 2){
-				if (curr_selection < LAST_ITEM)display->applyTexture(display->getTexture(ItemResources::getTextureIDByEnum(curr_selection)), blockpos, 0.2, blocksize, 0.1);
+				if (curr_selection < ItemResources::getLastItem())display->applyTexture(display->getTexture(ItemResources::getTextureIDByEnum(curr_selection)), blockpos, 0.2, blocksize, 0.1);
 				else display->applyTexture(display->getTexture(selected_white), blockpos, 0.2, blocksize, 0.1);
 			}
 		}
@@ -177,7 +177,7 @@ void Game::loop(){
 
 		display->applyTexture(display->getTexture(tiles), 0, 0, 1, 0.2);
 
-		for (int i = 0; i < LAST_ITEM; i++){
+		for (int i = 0; i < ItemResources::getLastItem(); i++){
 			int grid_x = i % 10;
 			int grid_y = i / 10;
 
@@ -193,7 +193,7 @@ void Game::loop(){
 
 		int hovered_item = selection_y * 10 + selection_x;
 
-		if (hovered_item < LAST_ITEM){
+		if (hovered_item < ItemResources::getLastItem()){
 			string item = reference_point[hovered_item]->getName();
 			display->getTextWH(main_font, item.c_str(), main_w, main_h);
 			display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
@@ -201,7 +201,7 @@ void Game::loop(){
 
 		if (selection_y == 2){
 			if (getBlockPos(display->getMouseX()) >= map_min_block && getBlockPos(display->getMouseX()) <= map_max_block)
-				if (curr_selection < LAST_ITEM){
+				if (curr_selection < ItemResources::getLastItem()){
 					string item = "Will place " + reference_point[curr_selection]->getName();
 					display->getTextWH(main_font, item.c_str(), main_w, main_h);
 					display->displayText(main_font, item.c_str(), RGBA(0, 255, 0, 0), 0.8, 0.95, main_w, main_h);
@@ -217,7 +217,7 @@ void Game::loop(){
 
 			if (selection_y == 2){
 				if (getBlockPos(display->getMouseX()) >= map_min_block && getBlockPos(display->getMouseX()) <= map_max_block)
-					if (curr_selection < LAST_ITEM)
+					if (curr_selection < ItemResources::getLastItem())
 						map->items.push_back(unique_ptr<Item>(ItemResources::item_types[curr_selection](getBlockPos(display->getMouseX()))));
 			}
 		}
