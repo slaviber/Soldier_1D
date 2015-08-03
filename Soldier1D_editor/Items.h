@@ -16,6 +16,7 @@ class Item;
 class ItemResources {
 	static map<const type_info*, int> textures;
 	static map<int, int> e_nums;
+	static map<const type_info*, int> ids;
 	static unsigned int last_item;
 public:
 	static const int getTextureID(const type_info* ti);
@@ -23,6 +24,7 @@ public:
 	static int getTextureIDByEnum(int e_num);
 	static vector<Item*(*)(int)> item_types;
 	static unsigned int getLastItem();
+	static int getItemID(const type_info*);
 };
 
 class Item{
@@ -39,6 +41,7 @@ public:
 	map<string,int> getStats();
 	virtual string getName() = 0;
 	bool updateStat(string, int);
+	void updateStat(vector<int>);
 };
 
 class SpawnPoint: public Item{
@@ -134,6 +137,7 @@ template<class T> void ItemResources::addTextureID(int newID) {
 	}
 
 	textures[&typeid(T)] = e_nums[last_item] = newID;
+	ids[&typeid(T)] = last_item;
 	item_types.push_back(&createInstance<T>);
 	last_item++;
 }

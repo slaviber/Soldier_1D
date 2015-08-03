@@ -263,45 +263,61 @@ void Game::loop(){
 }
 
 void Game::parseInput(vector<string> input){
-	if (input[0] == "mapsize" && input.size() == 2){
-		unsigned int size = atoi(input[1].c_str());
-		if (size == 0)cout << "Warning! Size can't be zero!" << endl;
-		else{
-			map->changeMapSize(size);
-			mappos_x = 0;
-		}
-	}
-
-	else if (input[0] == "stat" && input.size() == 4){
-		unsigned int uid = stoul(input[1], nullptr, 0);
-		int value = stoi(input[3], nullptr, 0);
-
-		bool found = false;
-		for (int i = 0; i < map->items.size(); ++i){
-			if (map->items.at(i)->getUID() == uid){
-				found = true;
-				if (!map->items.at(i)->updateStat(input[2], value))cout << "wrong stat!" << endl;
-				break;
+	try{
+		if (input[0] == "mapsize" && input.size() == 2){
+			unsigned int size = atoi(input[1].c_str());
+			if (size == 0)cout << "Warning! Size can't be zero!" << endl;
+			else{
+				map->changeMapSize(size);
+				mappos_x = 0;
 			}
 		}
-		if (!found) cout << "invalid item uid!" << endl;
-	}
 
-	else if (input[0] == "delete" && input.size() == 2){
-		unsigned int uid = stoul(input[1], nullptr, 0);
+		else if (input[0] == "stat" && input.size() == 4){
+			unsigned int uid = stoul(input[1], nullptr, 0);
+			int value = stoi(input[3], nullptr, 0);
 
-		bool found = false;
-		for (int i = 0; i < map->items.size(); ++i){
-			if (map->items.at(i)->getUID() == uid){
-				found = true;
-				map->items.erase(map->items.begin() + i);
-				break;
+			bool found = false;
+			for (int i = 0; i < map->items.size(); ++i){
+				if (map->items.at(i)->getUID() == uid){
+					found = true;
+					if (!map->items.at(i)->updateStat(input[2], value))cout << "wrong stat!" << endl;
+					break;
+				}
 			}
+			if (!found) cout << "invalid item uid!" << endl;
 		}
-		if (!found) cout << "invalid item uid!" << endl;
-	}
 
-	else cout << "wrong command" << endl;
+		else if (input[0] == "delete" && input.size() == 2){
+			unsigned int uid = stoul(input[1], nullptr, 0);
+
+			bool found = false;
+			for (int i = 0; i < map->items.size(); ++i){
+				if (map->items.at(i)->getUID() == uid){
+					found = true;
+					map->items.erase(map->items.begin() + i);
+					break;
+				}
+			}
+			if (!found) cout << "invalid item uid!" << endl;
+		}
+
+		else if (input[0] == "save" && input.size() == 2){
+			map->saveMap(input[1]);
+		}
+
+		else if (input[0] == "load" && input.size() == 2){
+			map->readMap(input[1]);
+		}
+
+		else cout << "wrong command" << endl;
+	}
+	catch (Error e){
+		cout << e.getError() << endl;
+	}
+	catch (exception e){
+		cout << e.what() << endl;
+	}
 }
 
 int main(int argc, char** argv){

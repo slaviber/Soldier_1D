@@ -12,5 +12,7 @@ public:
 	void changeMapSize(unsigned int);
 	unsigned int getMapSize();
 	vector<unique_ptr<Item>> items;
+	void saveMap(string);
+	void readMap(string);
 };
 #endif

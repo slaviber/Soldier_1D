@@ -1,17 +1,33 @@
 #include "Items.h"
 
 map<const type_info*, int> ItemResources::textures;
+map<const type_info*, int> ItemResources::ids;
 map<int, int> ItemResources::e_nums;
 vector<Item*(*)(int)> ItemResources::item_types;
 unsigned int ItemResources::last_item = 0;
 
-const int ItemResources::getTextureID(const type_info* ti) {
-	return textures.at(ti);
+const int ItemResources::getTextureID(const type_info* ti){
+	try{
+		return textures.at(ti);
+	}
+	catch (...){
+		throw Error("invalid Item!");
+	}
 }
 
 int ItemResources::getTextureIDByEnum(int e_num){
 	return e_nums[e_num];
 }
+
+int ItemResources::getItemID(const type_info* ti){
+	try{
+		return ids.at(ti);
+	}
+	catch (...){
+		throw Error("invalid Item!");
+	}
+}
+
 
 unsigned int ItemResources::getLastItem(){
 	return last_item;
@@ -39,6 +55,15 @@ bool Item::updateStat(string stat, int value){
 	if (it == stats.end())return false;
 	stats[stat] = value;
 	return true;
+}
+
+void Item::updateStat(vector<int> values){
+	vector<int>::iterator it2 = values.begin();
+
+	for (auto& it : stats){
+		it.second = *it2;
+		++it2;
+	}
 }
 
 unsigned int Item::uid=0;
