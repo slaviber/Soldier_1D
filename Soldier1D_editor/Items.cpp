@@ -58,6 +58,7 @@ string SpawnPoint::getName(){
 Base::Base(int x):Item(x){
 	stats.insert(pair<string,int>("Team",0));
 	stats.insert(pair<string,int>("Range",0));
+	stats.insert(pair<string,int>("Domination",0));
 }
 
 string Base::getName(){
@@ -89,4 +90,77 @@ Weapon::Weapon(int x):Item(x){
 
 string Weapon::getName(){
 	return "Weapon";
+}
+
+Health::Health(int x):Item(x){
+	stats.insert(pair<string,int>("Value",0));
+}
+
+string Health::getName(){
+	return "MedKit";
+}
+
+Bush::Bush(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Damage",0));
+	stats.insert(pair<string,int>("Permeability",0));
+}
+
+string Bush::getName(){
+	return "Bush";
+}
+
+Fence::Fence(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Permeability",0));
+}
+
+string Fence::getName(){
+	return "Fence";
+}
+
+Bunker::Bunker(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+}
+
+string Bunker::getName(){
+	return "Bunker";
+}
+
+BFG::BFG(int x):Item(x){
+	stats.insert(pair<string,int>("Weapon_type",0));
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Ammo_clip",0));
+}
+
+string BFG::getName(){
+	return "BFG";
+}
+
+Truck::Truck(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Speed",0));
+}
+
+string Truck::getName(){
+	return "Truck";
+}
+
+BTR::BTR(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Ammo_clip",0));
+}
+
+string BTR::getName(){
+	return "BTR";
+}
+
+Tank::Tank(int x):Item(x){
+	stats.insert(pair<string,int>("Durability",0));
+	stats.insert(pair<string,int>("Ammo_minigun",0));
+	stats.insert(pair<string,int>("Ammo_cannon",0));
+}
+
+string Tank::getName(){
+	return "Tank";
 }

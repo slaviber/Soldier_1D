@@ -68,9 +68,17 @@ void Game::loop(){
 	int not_so_black = display->loadTexture("Textures/not_so_black.png");
 	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"));
 	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase.png"));
-	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/TeamFlag.png"));
+	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/Flag.png"));
 	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"));
 	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"));
+	ItemResources::addTextureID<Health>(display->loadTexture("Textures/MedKit.png"));
+	ItemResources::addTextureID<Bush>(display->loadTexture("Textures/Bush.png"));
+	ItemResources::addTextureID<Fence>(display->loadTexture("Textures/Fence.png"));
+	ItemResources::addTextureID<Bunker>(display->loadTexture("Textures/Bunker.png"));
+	ItemResources::addTextureID<BFG>(display->loadTexture("Textures/BFG.png"));
+	ItemResources::addTextureID<Truck>(display->loadTexture("Textures/Truck.png"));
+	ItemResources::addTextureID<BTR>(display->loadTexture("Textures/BTR.png"));
+	ItemResources::addTextureID<Tank>(display->loadTexture("Textures/Tank.png"));
 
 	for (int i = 0; i < ItemResources::getLastItem(); ++i){
 		reference_point.push_back(ItemResources::item_types[i](0));

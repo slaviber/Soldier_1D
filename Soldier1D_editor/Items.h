@@ -71,6 +71,55 @@ public:
 	string getName();
 };
 
+class Health: public Item{
+public:
+	Health(int x);
+	string getName();
+};
+
+class Bush: public Item{
+public:
+	Bush(int x);
+	string getName();
+};
+
+class Fence: public Item{
+public:
+	Fence(int x);
+	string getName();
+};
+
+class Bunker: public Item{
+public:
+	Bunker(int x);
+	string getName();
+};
+
+class BFG: public Item{
+public:
+	BFG(int x);
+	string getName();
+};
+
+class Truck: public Item{
+public:
+	Truck(int x);
+	string getName();
+};
+
+class BTR: public Item{
+public:
+	BTR(int x);
+	string getName();
+};
+
+class Tank: public Item{
+public:
+	Tank(int x);
+	string getName();
+};
+
+
 template<typename T> Item * createInstance(int x) { return new T(x); }
 
 template<class T> void ItemResources::addTextureID(int newID) {
@@ -79,7 +128,10 @@ template<class T> void ItemResources::addTextureID(int newID) {
 	string error = "class ";
 	error += typeid(T).name();
 	error += " already registered!";
-	if (it != textures.end())throw Error(error.c_str());
+	if (it != textures.end()){
+		string &err = *new string(error);
+		throw Error(err.c_str());
+	}
 
 	textures[&typeid(T)] = e_nums[last_item] = newID;
 	item_types.push_back(&createInstance<T>);
