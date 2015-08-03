@@ -81,7 +81,6 @@ string SpawnPoint::getName(){
 }
 
 Base::Base(int x):Item(x){
-	stats.insert(pair<string,int>("Team",0));
 	stats.insert(pair<string,int>("Range",0));
 	stats.insert(pair<string,int>("Domination",0));
 }

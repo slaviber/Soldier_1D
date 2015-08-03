@@ -21,6 +21,7 @@ class Game : public Console{
 	int curr_selection = 0;
 	bool left_clicked = false;
 	vector<Item*> reference_point;
+	unsigned int last_time_mil;
 public:
 	Game();
 	void loop();
@@ -33,6 +34,7 @@ Game::Game(){
 	try{
 		if (SDL_Init(SDL_INIT_EVERYTHING))throw Error(SDL_GetError());
 		display = new Graphics();
+		last_time_mil = display->Time();
 	}
 	catch (Error e){
 		cout << e.getError() << endl;
@@ -230,6 +232,11 @@ void Game::loop(){
 			}
 		}
 
+		if (last_time_mil + 600000 < display->Time()){
+			last_time_mil = display->Time();
+			map->saveMap("autosaved.sdm");
+		}
+
 		double mouse_center_x;
 		if (SDL_PollEvent(&event)){
 			switch (event.type){
@@ -308,6 +315,35 @@ void Game::parseInput(vector<string> input){
 
 		else if (input[0] == "load" && input.size() == 2){
 			map->readMap(input[1]);
+		}
+
+		else if (input[0] == "copy" && input.size() == 3){
+			unsigned int uid = stoul(input[1], nullptr, 0);
+			int x = stoul(input[2], nullptr, 0);
+
+			bool found = false;
+			for (int i = 0; i < map->items.size(); ++i){
+				if (map->items.at(i)->getUID() == uid){
+					found = true;
+					Item& old = *map->items.at(i);
+					int item_id = ItemResources::getItemID(&typeid(old));
+					Item* new_item = ItemResources::item_types[item_id](x);
+					std::map<string, int> old_stats = old.getStats();
+					vector<int> stats;
+					for (auto &it : old_stats){
+						stats.push_back(it.second);
+					}
+					new_item->updateStat(stats);
+					map->items.push_back(unique_ptr<Item>(new_item));
+					break;
+				}
+			}
+			if (!found) cout << "invalid item uid!" << endl;
+
+		}
+
+		else if (input[0] == "quit" && input.size() == 1){
+			quit = true;
 		}
 
 		else cout << "wrong command" << endl;

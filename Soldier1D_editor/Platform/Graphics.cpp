@@ -91,3 +91,7 @@ double Graphics::getMouseY(){
 bool Graphics::getLeftClick(){
 	return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(1);
 }
+
+unsigned int Graphics::Time(){
+	return SDL_GetTicks();
+}

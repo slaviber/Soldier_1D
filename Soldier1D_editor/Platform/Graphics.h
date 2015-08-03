@@ -53,6 +53,7 @@ public:
 	double getMouseX();
 	double getMouseY();
 	bool getLeftClick();
+	unsigned int Time();
 	//double getMouseY();
 	SDL_Texture* getTexture(unsigned int id);
 	~Graphics();
