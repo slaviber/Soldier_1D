@@ -336,6 +336,7 @@ void Game::parseInput(vector<string> input){
 
 		else if (input[0] == "load" && input.size() == 2){
 			map->readMap(input[1]);
+			update_bg = true;
 		}
 
 		else if (input[0] == "copy" && input.size() == 3){
@@ -373,7 +374,6 @@ void Game::parseInput(vector<string> input){
 				bytes[i] = (unsigned char)stoul(input[i+1], nullptr, 0);
 			}
 			map->setBackground(bytes);
-
 			update_bg = true;
 
 

@@ -54,9 +54,8 @@ void Map::readMap(string mapfile){
 	in.read((char*)(&magic), sizeof(char)*4);
 	if (!(magic[0] == 'S' && magic[1] == 'D' && magic[2] == 'M' && magic[3] == ' '))throw Error("wrong map file!");
 
-	in.read((char*)(background), sizeof(char) * 16);
-
 	in.read((char*)(&size), sizeof(unsigned int));
+	in.read((char*)(background), sizeof(char) * 16);
 
 	while (!in.eof()){
 		int itemid, itemx;
