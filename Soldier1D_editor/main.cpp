@@ -79,21 +79,21 @@ void Game::loop(){
 	int selected = display->loadTexture("Textures/selected.png");
 	int selected_white = display->loadTexture("Textures/selected_white.png");
 	int not_so_black = display->loadTexture("Textures/not_so_black.png");
-	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn.png"));
-	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase.png"));
-	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/Flag.png"));
-	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo.png"));
-	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon.png"));
-	ItemResources::addTextureID<Health>(display->loadTexture("Textures/MedKit.png"));
-	ItemResources::addTextureID<Bush>(display->loadTexture("Textures/Bush.png"));
-	ItemResources::addTextureID<Fence>(display->loadTexture("Textures/Fence.png"));
-	ItemResources::addTextureID<Bunker>(display->loadTexture("Textures/Bunker.png"));
-	ItemResources::addTextureID<BFG>(display->loadTexture("Textures/BFG.png"));
-	ItemResources::addTextureID<Truck>(display->loadTexture("Textures/Truck.png"));
-	ItemResources::addTextureID<BTR>(display->loadTexture("Textures/BTR.png"));
-	ItemResources::addTextureID<Tank>(display->loadTexture("Textures/Tank.png"));
+	ItemResources::addTextureID<SpawnPoint>(display->loadTexture("Textures/spawn_style1.png"));
+	ItemResources::addTextureID<Base>(display->loadTexture("Textures/TeamBase_style1.png"));
+	ItemResources::addTextureID<Flag>(display->loadTexture("Textures/Flag_style1.png"));
+	ItemResources::addTextureID<Ammo>(display->loadTexture("Textures/Ammo_style1.png"));
+	ItemResources::addTextureID<Weapon>(display->loadTexture("Textures/Weapon_style1.png"));
+	ItemResources::addTextureID<Health>(display->loadTexture("Textures/MedKit_style1.png"));
+	ItemResources::addTextureID<Bush>(display->loadTexture("Textures/Bush_style1.png"));
+	ItemResources::addTextureID<Fence>(display->loadTexture("Textures/Fence_style1.png"));
+	ItemResources::addTextureID<Bunker>(display->loadTexture("Textures/Bunker_style1.png"));
+	ItemResources::addTextureID<BFG>(display->loadTexture("Textures/BFG_style1.png"));
+	ItemResources::addTextureID<Truck>(display->loadTexture("Textures/Truck_style1.png"));
+	ItemResources::addTextureID<BTR>(display->loadTexture("Textures/APC_style1.png"));
+	ItemResources::addTextureID<Tank>(display->loadTexture("Textures/Tank_style1.png"));
 
-	unsigned char bg[16]{0x0, 0x0, 0x52, 0x52, 0x52, 0x52, 0xff, 0xff, 0xff, 0xa4, 0xa4, 0xff, 0xa4, 0x0, 0x0, 0x52};
+	unsigned char bg[16]{255, 255, 255, 254, 255, 255, 255, 254, 254, 255, 254, 255, 255, 255, 254, 255};
 	map->setBackground(bg);
 	map_bgr = display->loadBackground(map->getBackground());
 
