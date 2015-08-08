@@ -22,6 +22,7 @@ class Game : public Console{
 	bool left_clicked = false;
 	vector<Item*> reference_point;
 	unsigned int last_time_mil;
+	bool update_bg = false;
 public:
 	Game();
 	void loop();
@@ -81,6 +82,10 @@ void Game::loop(){
 	ItemResources::addTextureID<Truck>(display->loadTexture("Textures/Truck.png"));
 	ItemResources::addTextureID<BTR>(display->loadTexture("Textures/BTR.png"));
 	ItemResources::addTextureID<Tank>(display->loadTexture("Textures/Tank.png"));
+
+	unsigned char bg[16]{10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+	map->setBackground(bg);
+	map_bgr = display->loadBackground(map->getBackground());
 
 	for (int i = 0; i < ItemResources::getLastItem(); ++i){
 		reference_point.push_back(ItemResources::item_types[i](0));
@@ -232,6 +237,12 @@ void Game::loop(){
 			}
 		}
 
+
+		if (update_bg){
+			update_bg = false;
+			display->changeBackground(map->getBackground());
+		}
+
 		if (last_time_mil + 600000 < display->Time()){
 			last_time_mil = display->Time();
 			map->saveMap("autosaved.sdm");
@@ -344,6 +355,18 @@ void Game::parseInput(vector<string> input){
 
 		else if (input[0] == "quit" && input.size() == 1){
 			quit = true;
+		}
+
+		else if (input[0] == "background" && input.size() == 17){
+			unsigned char bytes[16];
+			for (int i = 0; i < 16; ++i){
+				bytes[i] = (unsigned char)stoul(input[i+1], nullptr, 0);
+			}
+			map->setBackground(bytes);
+
+			update_bg = true;
+
+
 		}
 
 		else cout << "wrong command" << endl;

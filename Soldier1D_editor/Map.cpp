@@ -9,6 +9,13 @@ unsigned int Map::getMapSize(){
 	return size;
 }
 
+void Map::setBackground(unsigned char bg[16]){
+	memcpy(background, bg, 16);
+}
+unsigned char* Map::getBackground(){
+	return background;
+}
+
 void Map::saveMap(string mapfile){
 	ofstream out;
 	out.open(mapfile.c_str(), ios::binary);
@@ -16,6 +23,7 @@ void Map::saveMap(string mapfile){
 	out << "SDM ";
 
 	out.write((char*)(&size), sizeof(int));
+	out.write((char*)background, sizeof(char) * 16);
 
 	for (int i = 0; i < items.size(); ++i){
 
@@ -44,8 +52,9 @@ void Map::readMap(string mapfile){
 
 	char magic[4];
 	in.read((char*)(&magic), sizeof(char)*4);
-
 	if (!(magic[0] == 'S' && magic[1] == 'D' && magic[2] == 'M' && magic[3] == ' '))throw Error("wrong map file!");
+
+	in.read((char*)(background), sizeof(char) * 16);
 
 	in.read((char*)(&size), sizeof(unsigned int));
 

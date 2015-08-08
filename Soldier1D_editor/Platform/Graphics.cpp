@@ -10,6 +10,12 @@ Graphics::Graphics(){
 	if ((win = SDL_CreateWindow("Soldier 1D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W, H, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI)) == nullptr)throw Error(SDL_GetError());
 	if ((ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)) == nullptr)throw Error(SDL_GetError());	
 	if (TTF_Init())throw Error(TTF_GetError());
+	for (int i = 0; i < 256; ++i)
+	{
+		palette[i].r = ((i >> 5) & 7) << 5;
+		palette[i].g = ((i >> 2) & 7) << 5;
+		palette[i].b = ((i >> 0) & 3) << 6;
+	}
 }
 
 Graphics::~Graphics(){
@@ -28,6 +34,25 @@ unsigned int Graphics::loadTexture(const char* path){
 	if ((tex = IMG_LoadTexture(ren, path)) == nullptr)throw Error(IMG_GetError());
 	textures.push_back(tex);
 	return textures.size()-1;
+}
+
+unsigned int Graphics::loadBackground(unsigned char bg[16]){
+	SDL_Surface* srf = SDL_CreateRGBSurfaceFrom(bg, 16, 1, 8, 16, 0, 0, 0, 0);
+	SDL_SetPaletteColors(srf->format->palette, palette, 0, 256);
+	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, srf);
+	SDL_FreeSurface(srf);
+	textures.push_back(tex);
+	map_background = textures.size() - 1;
+	return textures.size() - 1;
+
+}
+
+void Graphics::changeBackground(unsigned char bg[16]){
+	SDL_Surface* srf = SDL_CreateRGBSurfaceFrom(bg, 16, 1, 8, 16, 0, 0, 0, 0);
+	SDL_SetPaletteColors(srf->format->palette, palette, 0, 256);
+	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, srf);
+	SDL_FreeSurface(srf);
+	textures.at(map_background) = tex;
 }
 
 void Graphics::applyTexture(SDL_Texture* t, double x, double y, double width, double height){

@@ -40,12 +40,16 @@ class Graphics{
 	vector<SDL_Texture*> textures;
 	TTF_Font* fonts[MAX_FONTS];
 	int current_fonts = 0;
+	SDL_Color palette[256];
+	unsigned int map_background;
 	const int W = 640;
 	const int H = 640;
 public:
 	Graphics();
 	void renderScene();
 	unsigned int loadTexture(const char* path);
+	unsigned int loadBackground(unsigned char[16]);
+	void changeBackground(unsigned char[16]);
 	void applyTexture(SDL_Texture* t, double x, double y, double width, double height);
 	int loadFont(const char* font, int size);
 	void displayText(int font, const char* text, RGBA color, double x, double y, double w, double h);
@@ -54,7 +58,6 @@ public:
 	double getMouseY();
 	bool getLeftClick();
 	unsigned int Time();
-	//double getMouseY();
 	SDL_Texture* getTexture(unsigned int id);
 	~Graphics();
 };
