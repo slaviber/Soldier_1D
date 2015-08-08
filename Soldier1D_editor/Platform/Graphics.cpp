@@ -12,9 +12,9 @@ Graphics::Graphics(){
 	if (TTF_Init())throw Error(TTF_GetError());
 	for (int i = 0; i < 256; ++i)
 	{
-		palette[i].r = ((i >> 5) & 7) << 5;
-		palette[i].g = ((i >> 2) & 7) << 5;
-		palette[i].b = ((i >> 0) & 3) << 6;
+		palette[i].r = ((i >> 0) & 7) << 5;
+		palette[i].g = ((i >> 3) & 7) << 5;
+		palette[i].b = ((i >> 6) & 3) << 6;
 	}
 }
 
