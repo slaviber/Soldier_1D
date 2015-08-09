@@ -88,7 +88,7 @@ void Game::loop(){
 	ItemResources::addTextureID<Bush>(display->loadTexture("Textures/Bush_style1.png"));
 	ItemResources::addTextureID<Fence>(display->loadTexture("Textures/Fence_style1.png"));
 	ItemResources::addTextureID<Bunker>(display->loadTexture("Textures/Bunker_style1.png"));
-	ItemResources::addTextureID<BFG>(display->loadTexture("Textures/BFG_style1.png"));
+	//ItemResources::addTextureID<BFG>(display->loadTexture("Textures/BFG_style1.png"));
 	ItemResources::addTextureID<Truck>(display->loadTexture("Textures/Truck_style1.png"));
 	ItemResources::addTextureID<BTR>(display->loadTexture("Textures/APC_style1.png"));
 	ItemResources::addTextureID<Tank>(display->loadTexture("Textures/Tank_style1.png"));
