@@ -361,7 +361,6 @@ void Game::parseInput(vector<string> input){
 				}
 			}
 			if (!found) cout << "invalid item uid!" << endl;
-
 		}
 
 		else if (input[0] == "quit" && input.size() == 1){
