@@ -2,6 +2,7 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include<array>
 #include "SDL_net.h"
 #include "SDL.h"
 #include "SDL_image.h"
@@ -25,34 +26,17 @@ const char* Error::getError(){ return err; }
 
 
 #define MAXLEN 1024
-
-
-void client(TCPsocket new_tcpsock){
-
-	int result;
-	char msg[MAXLEN];
-	while (1){
-		result = SDLNet_TCP_Recv(new_tcpsock, msg, MAXLEN);
-		if (result <= 0) {
-			const char* error = SDL_GetError();
-			SDLNet_TCP_Close(new_tcpsock);
-			cout << "SDLNet_TCP_Recv: " << error << endl;
-			return;
-		}
-		cout << "received " << endl;
-		for (int i = 0; i < result; ++i){
-			cout << msg[i];
-		}
-		cout << endl;
-	}
-
-}
+#define SOCKS 16
 
 int main(int argc, char** argv){
 	IPaddress ipaddress;
 	TCPsocket tcpsock;	
 	TCPsocket new_tcpsock;
-	vector<shared_ptr<thread>> threads;
+	SDLNet_SocketSet set;
+	array<TCPsocket, SOCKS> sockets;
+	int numused = 0;
+	int result;
+	char msg[MAXLEN];
 
 	try{
 
@@ -64,60 +48,49 @@ int main(int argc, char** argv){
 
 		if (!(tcpsock = SDLNet_TCP_Open(&ipaddress)))throw Error(("SDLNet_TCP_Open: " + string(SDL_GetError())).c_str());
 
-
-
-		//SDLNet_SocketSet set;
-		//if (!(set = SDLNet_AllocSocketSet(16)))throw Error(("SDLNet_AllocSocketSet: " + string(SDL_GetError())).c_str());
-
-
-
-
-
+		if (!(set = SDLNet_AllocSocketSet(SOCKS)))throw Error(("SDLNet_AllocSocketSet: " + string(SDL_GetError())).c_str());
 
 		while (1){
 			new_tcpsock = SDLNet_TCP_Accept(tcpsock);
-			if (!new_tcpsock) {
-				//cout << "SDLNet_TCP_Accept: " + string(SDL_GetError()) << endl;
-			}
-			//int numused;
-			//numused = SDLNet_UDP_AddSocket(set, new_tcpsock);
-			//if (numused == -1)throw Error(("SDLNet_UDP_AddSocket: " + string(SDL_GetError())).c_str());
+			if (!new_tcpsock);
 			else {
-				threads.push_back(shared_ptr<thread>(new thread(client, new_tcpsock)));
-				cout << threads.size() << endl;
+				numused = SDLNet_TCP_AddSocket(set, new_tcpsock);
+				if (numused == -1)throw Error(("SDLNet_AddSocket: " + string(SDL_GetError())).c_str());
+				else cout << numused << endl;
+				sockets[numused - 1] = new_tcpsock;
+			}
+			if (numused){ //there are clients
+				int ringing = SDLNet_CheckSockets(set, 0);
+				if (ringing == -1)throw Error(("error in SDLNet_CheckSockets. Possible cause: " + string(SDL_GetError())).c_str());
+				else if (ringing){
+					for (int i = 0; i < numused; ++i){
+						if (SDLNet_SocketReady(sockets[i])){
+							result = SDLNet_TCP_Recv(sockets[i], msg, MAXLEN);
+							if (result <= 0) {
+								const char* error = SDL_GetError();
+								SDLNet_TCP_Close(sockets[i]);
+								numused = SDLNet_TCP_DelSocket(set, sockets[i]);
+								cout << "SDLNet_TCP_Recv: " << error << endl;
+								if (numused == -1)throw Error(("SDLNet_TCP_DelSocket: " + string(SDL_GetError())).c_str());
+								break;
+							}
+							cout << "received " << endl;
+							for (int i = 0; i < result; ++i){
+								cout << msg[i];
+							}
+							cout << endl;
+						}
+					}
+				}
 			}
 			SDL_Delay(1);
 		}
-
-
-
-
-		//int result;
-		//char msg[MAXLEN];
-		//while (1){
-		//	result = SDLNet_TCP_Recv(new_tcpsock, msg, MAXLEN);
-		//	if (result <= 0) {
-		//		cout << "SDLNet_TCP_Recv: " + string(SDL_GetError()) << endl;
-		//		SDLNet_TCP_Close(new_tcpsock);
-		//		break;
-		//	}
-		//	cout << "received " << endl;
-		//	for (int i = 0; i < result; ++i){
-		//		cout << msg[i];
-		//	}
-		//	cout << endl;
-		//}
-
 	}
 	catch (Error& e){
 		cout << e.getError() << endl;
 	}
 
-
-	for (auto i : threads){
-		i->join();
-	}
-
+	SDLNet_FreeSocketSet(set);
 	SDLNet_TCP_Close(tcpsock);
 	SDLNet_Quit();
 	SDL_Quit();
