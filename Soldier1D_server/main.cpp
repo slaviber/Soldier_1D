@@ -33,7 +33,7 @@ int main(int argc, char** argv){
 	TCPsocket tcpsock;	
 	TCPsocket new_tcpsock;
 	SDLNet_SocketSet set;
-	array<TCPsocket, SOCKS> sockets;
+	vector<TCPsocket> sockets;
 	int numused = 0;
 	int result;
 	char msg[MAXLEN];
@@ -57,19 +57,21 @@ int main(int argc, char** argv){
 				numused = SDLNet_TCP_AddSocket(set, new_tcpsock);
 				if (numused == -1)throw Error(("SDLNet_AddSocket: " + string(SDL_GetError())).c_str());
 				else cout << numused << endl;
-				sockets[numused - 1] = new_tcpsock;
+				sockets.push_back(new_tcpsock);
 			}
 			if (numused){ //there are clients
 				int ringing = SDLNet_CheckSockets(set, 0);
 				if (ringing == -1)throw Error(("error in SDLNet_CheckSockets. Possible cause: " + string(SDL_GetError())).c_str());
 				else if (ringing){
-					for (int i = 0; i < numused; ++i){
-						if (SDLNet_SocketReady(sockets[i])){
-							result = SDLNet_TCP_Recv(sockets[i], msg, MAXLEN);
+					vector<TCPsocket>::iterator vit;
+					for (vit = sockets.begin(); vit != sockets.end(); ++vit){
+						if (SDLNet_SocketReady(*vit)){
+							result = SDLNet_TCP_Recv(*vit, msg, MAXLEN);
 							if (result <= 0) {
 								const char* error = SDL_GetError();
-								SDLNet_TCP_Close(sockets[i]);
-								numused = SDLNet_TCP_DelSocket(set, sockets[i]);
+								SDLNet_TCP_Close(*vit);
+								numused = SDLNet_TCP_DelSocket(set, *vit);
+								sockets.erase(vit);
 								cout << "SDLNet_TCP_Recv: " << error << endl;
 								if (numused == -1)throw Error(("SDLNet_TCP_DelSocket: " + string(SDL_GetError())).c_str());
 								break;
@@ -98,3 +100,4 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+// TODO: class-based server logic with separate client buffers
