@@ -77,6 +77,11 @@ public:
 	}
 };
 
+queue<ClientManager::ClientEvent> ClientManager::client_events;
+queue<ClientManager::ClientEvent> ClientManager::server_events;
+mutex ClientManager::client_event_mutex;
+mutex ClientManager::server_event_mutex;
+
 class SocketManager{
 
 	thread start;
@@ -94,13 +99,13 @@ class SocketManager{
 		TCPsocket s;
 		char buf[MAXLEN];
 		int buflen = 0;
-		int id;
+		unsigned int id;
 	public:
 		Client(TCPsocket s){
 			this->s = s;
 			id = uid++;
 		}
-		int getID(){
+		unsigned int getID(){
 			return id;
 		}
 		char* getBuf(){
@@ -135,13 +140,19 @@ class SocketManager{
 			if (!(set = SDLNet_AllocSocketSet(SOCKS)))throw Error(("SDLNet_AllocSocketSet: " + string(SDL_GetError())).c_str());
 
 			while (!stop){
+				if (numused == SOCKS)continue; //server socketset is full; should be avoided
 				new_tcpsock = SDLNet_TCP_Accept(tcpsock);
-				if (!new_tcpsock);
+				if (!new_tcpsock){
+					const char* error = SDL_GetError();
+					if (strcmp("accept() failed", error)){
+						throw Error(("SDLNet_TCP_Accept: " + string(error)).c_str());
+					}
+				}
 				else {
 					numused = SDLNet_TCP_AddSocket(set, new_tcpsock);
 					if (numused == -1)throw Error(("SDLNet_AddSocket: " + string(SDL_GetError())).c_str());
-					else cout << numused << endl;
 					sockets.push_back(Client(new_tcpsock));
+					client_manager.addClientEvent({ ClientManager::ClientEvents::CONNECT, sockets.back().getID(), "" });
 				}
 				if (numused){ //there are clients
 					int ringing = SDLNet_CheckSockets(set, 0);
@@ -155,21 +166,29 @@ class SocketManager{
 									const char* error = SDL_GetError();
 									SDLNet_TCP_Close(vit->getSock());
 									numused = SDLNet_TCP_DelSocket(set, vit->getSock());
+									client_manager.addClientEvent({ ClientManager::ClientEvents::DISCONNECT, vit->getID(), "" });
 									sockets.erase(vit);
-									cout << "SDLNet_TCP_Recv: " << error << endl;
+									if (strcmp("accept() failed", error)){
+										throw Error(("SDLNet_TCP_Recv: " + string(error)).c_str());
+									}
 									if (numused == -1)throw Error(("SDLNet_TCP_DelSocket: " + string(SDL_GetError())).c_str());
 									break;
 								}
 								vit->bufLen() += result;
-								cout << "received " << vit->getID() << endl;
 								for (int i = 0; i < vit->bufLen(); ++i){
-									cout << vit->getBuf()[i];
+									if (!vit->getBuf()[i]){
+										string chunk(vit->getBuf(), i);
+										memmove(vit->getBuf(), vit->getBuf() + i, vit->bufLen() - i);
+										vit->bufLen() -= i;
+										client_manager.addClientEvent({ ClientManager::ClientEvents::UPDATE, vit->getID(), chunk });
+										i = 0;
+									}
 								}
-								cout << endl;
 							}
 						}
 					}
 				}
+				//TODO: add server to client communication
 				SDL_Delay(1);
 			}
 		}
@@ -201,11 +220,25 @@ bool SocketManager::stop = false;
 int main(int argc, char** argv){
 	if (SDL_Init(0) == -1)throw Error(("SDL_Init: " + string(SDL_GetError())).c_str());
 	SocketManager* sm = new SocketManager();
-	system("pause");
+	//system("pause");
+	ClientManager client_manager;
+	while (1){
+		ClientManager::ClientEvent ce = client_manager.pollClientEvent();
+		switch (ce.event_occured){
+		case ClientManager::ClientEvents::CONNECT:
+			cout << "A client connected to the server with that unique identifier: " << ce.client_id << endl;
+			break;
+		case ClientManager::ClientEvents::DISCONNECT:
+			cout << "A client lost connection to server with that unique identifier: " << ce.client_id << endl;
+			break;
+		case  ClientManager::ClientEvents::UPDATE:
+			cout << "A client sent a message to server with that unique identifier: " << ce.client_id << " and the message is: " << ce.message << endl;
+			break;
+		default: SDL_Delay(10);
+		}
+	}
 	delete sm;
 	SDL_Quit();
 
 return 0;
 }
-
-//TODO: the socket manager shoud communicate with the server through the client manager
