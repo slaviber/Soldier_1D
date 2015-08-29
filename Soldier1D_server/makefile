@@ -5,7 +5,7 @@ CXXINCS = -I"include/SDL2" -I"Platform" -I"Console" -I"include/Lua53"
 RM = rm -f
 
 all:
-	g++ main.cpp -o Soldier1D.exe $(LIBS) $(CXXINCS) -std=c++11 -m32
+	g++ Socket.cpp main.cpp -o Soldier1D.exe $(LIBS) $(CXXINCS) -std=c++11 -m32
 clean:
 	RM *.exe
 
