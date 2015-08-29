@@ -20,7 +20,9 @@ ClientManager::ClientEvent ClientManager::pollClientEvent(){
 }
 
 void ClientManager::addServerEvent(ClientEvent e){
+	server_event_mutex.lock();
 	server_events.push(e);
+	server_event_mutex.unlock();
 }
 
 void ClientManager::addClientEvent(ClientEvent e){
@@ -90,13 +92,9 @@ void SocketManager::mainSocketThread(){
 	try{
 
 		if (SDLNet_Init() == -1)throw Error(("SDLNet_Init: " + string(SDL_GetError())).c_str());
-
 		if (SDLNet_ResolveHost(&ipaddress, NULL, 7777) == -1)throw Error(("SDLNet_ResolveHost: " + string(SDL_GetError())).c_str());
-
 		if (!(tcpsock = SDLNet_TCP_Open(&ipaddress)))throw Error(("SDLNet_TCP_Open: " + string(SDL_GetError())).c_str());
-
 		if (!(set = SDLNet_AllocSocketSet(SOCKS)))throw Error(("SDLNet_AllocSocketSet: " + string(SDL_GetError())).c_str());
-
 		while (!stop){
 			if (numused == SOCKS)continue; //server socketset is full; should be avoided
 			new_tcpsock = SDLNet_TCP_Accept(tcpsock);
@@ -185,7 +183,6 @@ void SocketManager::mainSocketThread(){
 	catch (Error& e){
 		cout << e.getError() << endl;
 	}
-
 	SDLNet_FreeSocketSet(set);
 	SDLNet_TCP_Close(tcpsock);
 	SDLNet_Quit();
