@@ -4,6 +4,7 @@
 #include <memory>
 #include <queue>
 #include <mutex>
+#include <map>
 #include "SDL_net.h"
 #include "SDL.h"
 #include "SDL_image.h"
@@ -54,7 +55,7 @@ public:
 			return ce;
 		}
 		client_event_mutex.unlock();
-		return ClientEvent{ ClientEvents::NONE, 0 };
+		return ClientEvent{ ClientEvents::NONE, 0, "" };
 	}
 	void addServerEvent(ClientEvent e){
 		server_events.push(e);
@@ -73,7 +74,7 @@ public:
 			return ce;
 		}
 		server_event_mutex.unlock();
-		return ClientEvent{ ClientEvents::NONE, 0 };
+		return ClientEvent{ ClientEvents::NONE, 0, "" };
 	}
 };
 
@@ -105,18 +106,33 @@ class SocketManager{
 			this->s = s;
 			id = uid++;
 		}
-		unsigned int getID(){
-			return id;
+		char& operator [](const int index){
+			return buf[index];
 		}
-		char* getBuf(){
-			return buf;
-		}
-		TCPsocket& getSock(){
+		TCPsocket& operator *(){
 			return s;
 		}
-		int& bufLen(){
+		char* operator &(){
+			return buf;
+		}
+		unsigned int operator ()(){
+			return id;
+		}
+		int operator +(){
 			return buflen;
 		}
+		int operator -(){
+			return -buflen;
+		}
+		int& operator +=(int i){
+			buflen += i;
+			return buflen;
+		}
+		int& operator -=(int i){
+			buflen -= i;
+			return buflen;
+		}
+
 	};
 
 	static void mainSocketThread(){
@@ -125,7 +141,7 @@ class SocketManager{
 		TCPsocket new_tcpsock;
 		SDLNet_SocketSet set;
 		ClientManager client_manager;
-		vector<Client> sockets;
+		map<unsigned int, Client> sockets;
 		int numused = 0;
 		int result;
 
@@ -151,44 +167,76 @@ class SocketManager{
 				else {
 					numused = SDLNet_TCP_AddSocket(set, new_tcpsock);
 					if (numused == -1)throw Error(("SDLNet_AddSocket: " + string(SDL_GetError())).c_str());
-					sockets.push_back(Client(new_tcpsock));
-					client_manager.addClientEvent({ ClientManager::ClientEvents::CONNECT, sockets.back().getID(), "" });
+					Client cl = Client(new_tcpsock);
+					if (sockets.insert(pair<unsigned int, Client>(cl(), cl)).second == false)throw Error("Internal server error. Client connected with an existing socket. Aborting. 'sockets.insert(pair<unsigned int, Client>(cl(), cl))'");
+					client_manager.addClientEvent({ ClientManager::ClientEvents::CONNECT, cl(), "" });
 				}
 				if (numused){ //there are clients
 					int ringing = SDLNet_CheckSockets(set, 0);
 					if (ringing == -1)throw Error(("error in SDLNet_CheckSockets. Possible cause: " + string(SDL_GetError())).c_str());
 					else if (ringing){
-						vector<Client>::iterator vit;
+						map<unsigned int, Client>::iterator vit;
 						for (vit = sockets.begin(); vit != sockets.end(); ++vit){
-							if (SDLNet_SocketReady(vit->getSock())){
-								result = SDLNet_TCP_Recv(vit->getSock(), &vit->getBuf()[vit->bufLen()], vit->MAXLEN-vit->bufLen());
+							Client& cl = vit->second;
+							if (SDLNet_SocketReady(*cl)){
+								result = SDLNet_TCP_Recv(*cl, &cl[+cl], cl.MAXLEN + -cl);
 								if (result <= 0) {
 									const char* error = SDL_GetError();
-									SDLNet_TCP_Close(vit->getSock());
-									numused = SDLNet_TCP_DelSocket(set, vit->getSock());
-									client_manager.addClientEvent({ ClientManager::ClientEvents::DISCONNECT, vit->getID(), "" });
+									SDLNet_TCP_Close(*cl);
+									numused = SDLNet_TCP_DelSocket(set, *cl);
+									client_manager.addClientEvent({ ClientManager::ClientEvents::DISCONNECT, cl(), "" });
 									sockets.erase(vit);
 									if (strcmp("accept() failed", error)){
-										throw Error(("SDLNet_TCP_Recv: " + string(error)).c_str());
+										string error2 = "";
+										if (numused == -1)error2 = SDL_GetError();
+										throw Error(("SDLNet_TCP_Recv: " + string(error) + error2 == "" ? "" : " SDLNet_TCP_DelSocket: " + error2).c_str());
 									}
 									if (numused == -1)throw Error(("SDLNet_TCP_DelSocket: " + string(SDL_GetError())).c_str());
 									break;
 								}
-								vit->bufLen() += result;
-								for (int i = 0; i < vit->bufLen(); ++i){
-									if (!vit->getBuf()[i]){
-										string chunk(vit->getBuf(), i);
-										memmove(vit->getBuf(), vit->getBuf() + i, vit->bufLen() - i);
-										vit->bufLen() -= i;
-										client_manager.addClientEvent({ ClientManager::ClientEvents::UPDATE, vit->getID(), chunk });
-										i = 0;
+								int oldlen = +cl;
+								cl += result;
+								for (int i = oldlen; i < +cl; ++i){
+									if (!cl[i]){
+										i += 1;
+										string chunk(&cl, i);
+										memmove(&cl, &cl + i, +cl - i);
+										cl -= i;
+										client_manager.addClientEvent({ ClientManager::ClientEvents::UPDATE, cl(), chunk });
+										oldlen = 0;
+										i = oldlen;
 									}
 								}
 							}
 						}
 					}
 				}
-				//TODO: add server to client communication
+				while (1){
+					ClientManager::ClientEvent ce = client_manager.pollServerEvent();
+					if (ce.event_occured == ClientManager::ClientEvents::NONE)break;
+					try{
+						Client cl = sockets.at(ce.client_id);
+						switch (ce.event_occured){
+						case  ClientManager::ClientEvents::UPDATE:
+							result = SDLNet_TCP_Send(*cl, ce.message.c_str(), ce.message.length() + 1);
+							if (result < ce.message.length() + 1) {
+								const char* error = SDL_GetError();
+								SDLNet_TCP_Close(*cl);
+								numused = SDLNet_TCP_DelSocket(set, *cl);
+								string error2 = "";
+								if (numused == -1)error2 = SDL_GetError();
+								client_manager.addClientEvent({ ClientManager::ClientEvents::DISCONNECT, cl(), "" });
+								sockets.erase(cl());
+								throw Error(("SDLNet_TCP_Send: " + string(error) + error2 == "" ? "" : " SDLNet_TCP_DelSocket: " + error2).c_str());
+							}
+							break;
+						default: break;
+						}
+					}
+					catch (exception e){
+						cout << "server requests manipulation of a nonexistent client. Has the client disconnected? Client cl = sockets.at(ce.client_id); " << e.what() << endl;
+					}
+				}
 				SDL_Delay(1);
 			}
 		}
@@ -220,7 +268,6 @@ bool SocketManager::stop = false;
 int main(int argc, char** argv){
 	if (SDL_Init(0) == -1)throw Error(("SDL_Init: " + string(SDL_GetError())).c_str());
 	SocketManager* sm = new SocketManager();
-	//system("pause");
 	ClientManager client_manager;
 	while (1){
 		ClientManager::ClientEvent ce = client_manager.pollClientEvent();
