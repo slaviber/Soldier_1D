@@ -18,19 +18,10 @@ public:
 };
 
 
-class ClientManager{
+namespace ClientManager{
 
-public:
-	struct ClientEvent;
-private:
-
-	static queue<ClientEvent> client_events;
-	static queue<ClientEvent> server_events;
-	static mutex client_event_mutex;
-	static mutex server_event_mutex;
-
-public:
 	enum ClientEvents{ CONNECT = 0, DISCONNECT, UPDATE, NONE };
+	
 	struct ClientEvent{
 		ClientEvents event_occured;
 		unsigned int client_id;
@@ -41,45 +32,64 @@ public:
 	void addServerEvent(ClientEvent e);
 	void addClientEvent(ClientEvent e);
 	ClientEvent pollServerEvent();
-};
 
-class SocketManager{
+	namespace{
+		queue<ClientEvent> client_events;
+		queue<ClientEvent> server_events;
+		mutex client_event_mutex;
+		mutex server_event_mutex;
+	}
+}
 
-	thread start;
-	once_flag one_thread;
-	static bool stop;
-	static const int SOCKS = 16;
+namespace SocketManager{
+	namespace{
+		thread start;
+		once_flag one_thread;
+		bool stop = false;
+		const int SOCKS = 16;
+		class Client;
 
-	class Client{
+		TCPsocket server_socket;
+		SDLNet_SocketSet set;
+		map<unsigned int, Client> sockets;
+		int num_clients = 0;
 
-	public:
-		static const int MAXLEN = 65536;
-	private:
+		class Client{
 
-		static unsigned int uid;
-		TCPsocket s;
-		char buf[MAXLEN];
-		int buflen = 0;
-		unsigned int id;
+		public:
+			static const int MAXLEN = 65536;
+		private:
 
-	public:
-		Client(TCPsocket s);
-		char& operator [](const int index);
-		TCPsocket& operator *();
-		char* operator &();
-		unsigned int operator ()();
-		int operator +();
-		int operator -();
-		int& operator +=(int i);
-		int& operator -=(int i);
+			static unsigned int uid;
+			TCPsocket s;
+			char buf[MAXLEN];
+			int buflen = 0;
+			unsigned int id;
 
-	};
+		public:
+			Client(TCPsocket s);
+			char& operator [](const int index);
+			TCPsocket& operator *();
+			char* operator &();
+			unsigned int operator ()();
+			int operator +();
+			int operator -();
+			int& operator +=(int i);
+			int& operator -=(int i);
 
-	static void mainSocketThread();
-	static void startManager(SocketManager* self);
-public:
-	SocketManager();
-	~SocketManager();
-};
+		};
+
+		void mainSocketThread();
+		void startManager();
+		void initSocketSystem();
+		void deinitSocketSystem();
+		void processServerEvents();
+		void acceptClients();
+		void processClientEvents();
+		void extractUpdateBlocks(int last_message_len, Client& cl);
+	}
+	void startSocketManager();
+	void stopSocketManager();
+}
 
 #endif

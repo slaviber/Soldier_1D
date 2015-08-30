@@ -7,10 +7,9 @@ using namespace std;
 
 int main(int argc, char** argv){
 	if (SDL_Init(0) == -1)throw Error(("SDL_Init: " + string(SDL_GetError())).c_str());
-	SocketManager* sm = new SocketManager();
-	ClientManager client_manager;
+	SocketManager::startSocketManager();
 	while (1){
-		ClientManager::ClientEvent ce = client_manager.pollClientEvent();
+		ClientManager::ClientEvent ce = ClientManager::pollClientEvent();
 		switch (ce.event_occured){
 		case ClientManager::ClientEvents::CONNECT:
 			cout << "connection with id: " << ce.client_id << endl;
@@ -24,7 +23,7 @@ int main(int argc, char** argv){
 		default: SDL_Delay(10);
 		}
 	}
-	delete sm;
+	SocketManager::stopSocketManager();
 	SDL_Quit();
 
 return 0;
