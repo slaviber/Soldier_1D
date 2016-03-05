@@ -1,6 +1,6 @@
 #include "Map.h"
 #include <fstream>
-#include "lua.hpp"
+#include <lua.hpp>
 
 void Map::changeMapSize(unsigned int size){
 	this->size = size;

@@ -70,8 +70,8 @@ int Game::getBlockPos(double x){
 
 void Game::loop(){
 	if ((thread_g = SDL_CreateThread(Console::inputLoop, "commands", (void *)this)) == NULL) throw Error(SDL_GetError());
-	main_font = display->loadFont("Fonts/ARIALUNI.ttf", 12);
-	head_font = display->loadFont("Fonts/ARIALUNI.ttf", 16);
+	main_font = display->loadFont("Fonts/ARIALUNI.TTF", 12);
+	head_font = display->loadFont("Fonts/ARIALUNI.TTF", 16);
 	int map_bgr = display->loadTexture("Textures/bgr.png");
 	int gray_bgr = display->loadTexture("Textures/gray_bgr.png");
 	int orange = display->loadTexture("Textures/orange.png");
